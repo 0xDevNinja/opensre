@@ -487,6 +487,9 @@ def node_resolve_integrations(state: InvestigationState) -> dict:
       2. JWT_TOKEN env var — remote API, with local store/env filling missing services
       3. Local sources: ~/.tracer/integrations.json, plus env-based integrations for standalone use
     """
+    if state.get("resolved_integrations"):
+        return {}
+
     tracker = get_tracker()
     tracker.start("resolve_integrations", "Fetching org integrations")
     org_id = state.get("org_id", "")
