@@ -633,6 +633,13 @@ Thanks goes to these amazing people:
             <sub><b>afif1400</b></sub>
         </a>
     </td>
+            <td align="center">
+        <a href="https://github.com/gauravch-code">
+            <img src="https://avatars.githubusercontent.com/u/180489802?v=4" width="100" alt="gauravch-code"/>
+            <br />
+            <sub><b>gauravch-code</b></sub>
+        </a>
+    </td>
 		</tr>
 	</tbody>
 </table>
