@@ -59,9 +59,6 @@ coverage.xml
 # pyenv
 .python-version
 
-# uv
-uv.lock
-
 # mypy
 .mypy_cache/
 .dmypy.json
