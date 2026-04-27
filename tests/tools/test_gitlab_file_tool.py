@@ -58,6 +58,15 @@ def test_extract_params_maps_fields() -> None:
     assert params["gitlab_token"] == "glpat-test"
 
 
+def test_extract_params_defaults_ref_to_main() -> None:
+    rt = get_gitlab_file_contents.__opensre_registered_tool__
+    sources = mock_agent_state(
+        {"gitlab": {"connection_verified": True, "project_id": "42", "file_path": "src/main.py"}}
+    )
+    params = rt.extract_params(sources)
+    assert params["ref"] == "main"
+
+
 def test_run_returns_unavailable_when_config_missing() -> None:
     with patch("app.tools.GitLabFileTool._resolve_config", return_value=None):
         result = get_gitlab_file_contents(project_id="42", file_path="src/main.py")
