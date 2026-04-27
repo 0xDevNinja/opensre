@@ -122,3 +122,61 @@ def test_detect_sources_gitlab_not_added_when_no_integration() -> None:
     sources = detect_sources(raw_alert, {}, resolved_integrations={})
 
     assert "gitlab" not in sources
+
+
+def test_detect_sources_eks_forwards_stored_credentials() -> None:
+    """Stored IAM user credentials persisted on the AWS integration must be
+    forwarded onto ``eks_params`` so ``build_k8s_clients`` can use them as the
+    explicit, highest-priority resolution path."""
+    creds = {
+        "access_key_id": "AKIA",
+        "secret_access_key": "secret",
+        "session_token": "",
+    }
+    sources = detect_sources(
+        raw_alert={
+            "alert_source": "kubernetes",
+            "annotations": {
+                "cluster_name": "prod-eks",
+                "kube_namespace": "default",
+            },
+        },
+        context={},
+        resolved_integrations={
+            "aws": {
+                "region": "us-east-1",
+                "role_arn": "",
+                "external_id": "",
+                "cluster_names": ["prod-eks"],
+                "credentials": creds,
+            }
+        },
+    )
+
+    assert "eks" in sources
+    assert sources["eks"]["credentials"] == creds
+
+
+def test_detect_sources_eks_credentials_default_to_none_when_role_arn_used() -> None:
+    """A role_arn-only integration must produce ``credentials=None`` so the
+    AssumeRole fallback in ``build_k8s_clients`` runs unchanged."""
+    sources = detect_sources(
+        raw_alert={
+            "alert_source": "kubernetes",
+            "annotations": {
+                "cluster_name": "prod-eks",
+                "kube_namespace": "default",
+            },
+        },
+        context={},
+        resolved_integrations={
+            "aws": {
+                "region": "us-east-1",
+                "role_arn": "arn:aws:iam::123:role/r",
+                "external_id": "",
+                "cluster_names": ["prod-eks"],
+            }
+        },
+    )
+
+    assert sources["eks"]["credentials"] is None

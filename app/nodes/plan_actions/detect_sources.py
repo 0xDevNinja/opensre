@@ -714,6 +714,7 @@ def detect_sources(
                 "role_arn": _eks_int.get("role_arn", ""),
                 "external_id": _eks_int.get("external_id", ""),
                 "cluster_names": _eks_int.get("cluster_names", []),
+                "credentials": _eks_int.get("credentials") or None,
             }
             if _has_injected_eks_backend:
                 # Backend-only path: only fixture-aware EKS tools should activate,
