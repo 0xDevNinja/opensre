@@ -4,18 +4,33 @@ from typing import Any
 
 import boto3
 
+from app.services.eks.eks_k8s_client import _stored_credentials_to_aws_creds
+
 
 class EKSClient:
-    def __init__(self, role_arn: str, external_id: str = "", region: str = "us-east-1"):
+    def __init__(
+        self,
+        role_arn: str,
+        external_id: str = "",
+        region: str = "us-east-1",
+        credentials: dict[str, Any] | None = None,
+    ):
         self._region = region
-        self._boto_client = self._build(role_arn, external_id)
+        self._boto_client = self._build(role_arn, external_id, credentials)
 
-    def _build(self, role_arn: str, external_id: str) -> Any:
-        sts = boto3.client("sts")
-        kwargs: dict = {"RoleArn": role_arn, "RoleSessionName": "TracerEKSInvestigation"}
-        if external_id:
-            kwargs["ExternalId"] = external_id
-        c = sts.assume_role(**kwargs)["Credentials"]
+    def _build(
+        self,
+        role_arn: str,
+        external_id: str,
+        credentials: dict[str, Any] | None,
+    ) -> Any:
+        c = _stored_credentials_to_aws_creds(credentials) if credentials else None
+        if c is None:
+            sts = boto3.client("sts")
+            kwargs: dict = {"RoleArn": role_arn, "RoleSessionName": "TracerEKSInvestigation"}
+            if external_id:
+                kwargs["ExternalId"] = external_id
+            c = sts.assume_role(**kwargs)["Credentials"]
         return boto3.client(
             "eks",
             region_name=self._region,
