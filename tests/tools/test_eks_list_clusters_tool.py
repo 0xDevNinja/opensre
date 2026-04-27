@@ -60,6 +60,19 @@ def test_eks_creds_credentials_default_to_none_when_absent() -> None:
     assert out["credentials"] is None
 
 
+def test_run_forwards_credentials_to_eks_client() -> None:
+    """Stored integration credentials must thread through to ``EKSClient`` so
+    the new explicit-credentials path on `list_eks_clusters` (the EKS
+    connection-verification step) is reachable for IAM-user-only setups."""
+    mock_client = MagicMock()
+    mock_client.list_clusters.return_value = ["cluster-1"]
+    creds = {"access_key_id": "AKIA", "secret_access_key": "s", "session_token": ""}
+    with patch("app.tools.EKSListClustersTool.EKSClient", return_value=mock_client) as eks_ctor:
+        list_eks_clusters(role_arn="", region="us-east-1", credentials=creds)
+    _, kwargs = eks_ctor.call_args
+    assert kwargs.get("credentials") is creds
+
+
 def test_run_handles_client_error() -> None:
     mock_client = MagicMock()
     error = ClientError({"Error": {"Code": "AccessDenied", "Message": "Denied"}}, "ListClusters")
