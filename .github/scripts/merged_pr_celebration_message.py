@@ -44,7 +44,6 @@ templates: list[str] = [
 ]
 
 # GIFs are repo-hosted under .github/assets/celebrations/ so GitHub's own CDN serves them.
-# Two empty slots keep ~22% of merges emoji-only (avoids GIF fatigue).
 _base = "https://raw.githubusercontent.com/Tracer-Cloud/opensre/main/.github/assets/celebrations"
 gif_blocks: list[str] = [
     f"\n\n![]({_base}/party.gif)",
@@ -53,6 +52,7 @@ gif_blocks: list[str] = [
     f"\n\n![]({_base}/shipped.gif)",
     f"\n\n![]({_base}/fireworks.gif)",
     f"\n\n![]({_base}/woohoo.gif)",
+    f"\n\n![]({_base}/winner.gif)",
 ]
 
 head = random.choice(templates) + random.choice(gif_blocks)
